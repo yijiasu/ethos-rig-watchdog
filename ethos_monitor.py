@@ -58,7 +58,7 @@ def setup_ssh():
 
 def main():
     fail_count = defaultdict(int)
-    if pushover == 'enabled':
+    if pushover == 'enable':
         send_push("Starting Ethos Monitoring")
 
     setup_ssh()
