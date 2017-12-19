@@ -46,14 +46,14 @@ def send_push(msg):
 
 
 def setup_ssh():
-    if not os.path.exists('id_rsa') and not os.path.exists('id_rsa.pub'):
-        os.system("ssh-keygen -f id_rsa -t rsa -N ''")
+    if not os.path.exists('.ssh/id_rsa') and not os.path.exists('.ssh/id_rsa.pub'):
+        os.system("ssh-keygen -f .ssh/id_rsa -t rsa -N ''")
     data = requests.get(dashboard_url).json()
     rigs = data['rigs'].keys()
     for rig in rigs:
         rig_ip = (data['rigs'][rig]['ip'])
-        if os.system("ssh -oBatchMode=yes -i id_rsa -oStrictHostKeyChecking=no ethos@" + rig_ip + " exit"):
-            os.system("sshpass -f password ssh-copy-id -i id_rsa.pub -oStrictHostKeyChecking=no ethos@" + rig_ip)
+        if os.system("ssh -oBatchMode=yes -i .ssh/id_rsa -oStrictHostKeyChecking=no ethos@" + rig_ip + " exit"):
+            os.system("sshpass -f password ssh-copy-id -i .ssh/id_rsa.pub -oStrictHostKeyChecking=no ethos@" + rig_ip)
 
 
 def main():
@@ -84,7 +84,7 @@ def main():
                         command = error_remediations.get(rig_condition)
                     else:
                         command = error_default_remediation
-                    os.system("ssh -i id_rsa ethos@" + ip + " -oStrictHostKeyChecking=no " + command)
+                    os.system("ssh -i .ssh/id_rsa ethos@" + ip + " -oStrictHostKeyChecking=no " + command)
                     logging.error("rig %s failed with condition: %s" % (rig, rig_condition))
                     logging.error("executing %s on rig with ip %s" % (command, ip))
                     logging.error(data)
