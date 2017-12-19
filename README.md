@@ -44,24 +44,36 @@ ENV ERROR_DEFAULT_REMEDIATION "r"
 
 ## Running
 Start and stop the docker container with the ```start.sh``` and ```stop.sh``` scripts. Everything is saved to the current
-directory. If you make changes to the Dockerfile you will need to stop and start the container. If you delete the public
-private keys you will need to add the password file again so the new keys can be propagated to the rigs.
+directory minus the private public keys. They are place in a docker volume called ssh. If you make changes to the Dockerfile you
+will need to stop and start the container. If you delete the public private keys you will need to add the password file again so
+the new keys can be propagated to the rigs.
 
 ## Program flow
 A small off the shelf docker image (python:alpine) from dockerhub is loaded. User env variables are set and additional
 packages are installed. The current directory is mounted to the container and it's also where you will find the log.
 
 After container initialization the entrypoint script runs. The script checks to make sure that public private keys are setup.
-These will also be created in this directory. The public keys are then copied to all the rigs pulled from the ethos dashboard. 
-This is where the password file comes into play. If your uncomfortable with this step, you can copy the public keys manually
-and skip creating the password file. 
+These are created in a docker volume (ssh) mounted to /working/.ssh inside the container. The public keys are then copied to
+all the rigs pulled from the ethos dashboard. This is where the password file comes into play. If your uncomfortable with this
+step, you can copy the public keys manually and skip creating the password file. See section below about manually propagating
+public private keys.
 
 The main loop starts at this point and checks the status of the rigs. If an error condition is detected a specified number of
 times consecutively in a specified frequency of time, a remediation action is carried out on the rig in question via ssh. If you
 have notifications setup you will get a message of this event as well. The loop will continue until the container is stopped.
 
+## Manual public private key distribution
+Follow this if your not comfortable putting your password into a plain txt file.
+After starting the container you will need to do the following.
+```
+docker exec -it miner_monitor /bin/sh
+cd /working/.ssh
+ssh-copy-id -i id_rsa.pub ethos@<your-ethos-rig(s)>
+exit
+```
+
 ## Notes
-This is very beta and hasn't been fully tested
+This is very beta and hasn't been fully tested.
 It is assumed that if you have multiple rigs, they all have the same password. 
 
 
