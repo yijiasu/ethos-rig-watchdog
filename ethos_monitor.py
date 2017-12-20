@@ -32,7 +32,6 @@ error_default_remediation = os.environ.get('ERROR_DEFAULT_REMEDIATION')
 dashboard_url = os.environ.get('DASHBOARD_URL')
 freq = int(os.environ.get('CHECK_FREQ'))
 max_fail_count = int(os.environ.get('MAX_FAIL_COUNT'))
-ethos_password = os.environ.get('ETHOS_PASSWORD')
 
 def send_push(msg):
     conn = http.client.HTTPSConnection("api.pushover.net:443")
