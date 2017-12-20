@@ -44,12 +44,12 @@ ENV ERROR_DEFAULT_REMEDIATION "r"
 
 ## Running
 Start and stop the docker container with the ```start.sh``` and ```stop.sh``` scripts. Everything is saved to the current
-directory minus the private public keys. They are place in a docker volume called ssh. If you make changes to the Dockerfile you
+directory minus the private public keys. They are placed in a docker volume called ssh. If you make changes to the Dockerfile you
 will need to stop and start the container. If you delete the public private keys you will need to add the password file again so
 the new keys can be propagated to the rigs.
 
 ## Program flow
-A small off the shelf docker image (python:alpine) from dockerhub is loaded. User env variables are set and additional
+A small off the shelf docker image (python:alpine) from dockerhub is loaded. User environment variables are set and additional
 packages are installed. The current directory is mounted to the container and it's also where you will find the log.
 
 After container initialization the entrypoint script runs. The script checks to make sure that public private keys are setup.
