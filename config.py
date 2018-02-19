@@ -1,0 +1,8 @@
+DASHBOARD_URL = 'http://pnmine.ethosdistro.com/?json=yes'
+PUSHOVER = 'enable'
+APP_TOKEN = 'avh3toavqyuynpad9hc1mso1mdxbx4'
+USER_KEY = 'ud5jqgfv8k7xk6ysv9zqk3vkgd4cu7'
+DEBUG = 'enable'
+NON_ERROR_COND = 'mining just_booted high_load throttle'
+ERROR_REMEDIATIONS = 'no_hash=minestop,stuck_miners=minestop'
+ERROR_DEFAULT_REMEDIATION = 'r'

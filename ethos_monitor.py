@@ -7,14 +7,15 @@ import logging
 import http.client
 import urllib
 from collections import defaultdict
+import config
 
 # pushover keys
-app_token = os.environ.get('APP_TOKEN')
-user_key = os.environ.get('USER_KEY')
-pushover = os.environ.get('PUSHOVER')
+app_token = config.APP_TOKEN
+user_key = config.USER_KEY
+pushover = config.PUSHOVER
 
 # default logging level
-if os.environ.get('DEBUG') == 'enable':
+if config.DEBUG == 'enable':
     log_level = logging.DEBUG
 else:
     log_level = logging.ERROR
@@ -23,15 +24,15 @@ else:
 logging.basicConfig(filename='ethos_monitor.log', level=log_level, format='%(asctime)s %(message)s')
 
 # error conditions
-non_error_conditions = os.environ.get('NON_ERROR_COND').split()
-error_remediations_str = os.environ.get('ERROR_REMEDIATIONS')
+non_error_conditions = config.NON_ERROR_COND.split()
+error_remediations_str = config.ERROR_REMEDIATIONS
 error_remediations = dict(x.split('=') for x in error_remediations_str.split(','))
-error_default_remediation = os.environ.get('ERROR_DEFAULT_REMEDIATION')
+error_default_remediation = config.ERROR_DEFAULT_REMEDIATION
 
 
-dashboard_url = os.environ.get('DASHBOARD_URL')
-freq = int(os.environ.get('CHECK_FREQ'))
-max_fail_count = int(os.environ.get('MAX_FAIL_COUNT'))
+dashboard_url = config.DASHBOARD_URL
+freq = int(config.CHECK_FREQ)
+max_fail_count = int(config.MAX_FAIL_COUNT)
 
 def send_push(msg):
     conn = http.client.HTTPSConnection("api.pushover.net:443")
@@ -60,41 +61,44 @@ def main():
     if pushover == 'enable':
         send_push("Starting Ethos Monitoring")
 
-    setup_ssh()
+    # setup_ssh()
 
     while True:
-        data = requests.get(dashboard_url).json()
-        rigs = data['rigs'].keys()
+        try:
+            data = requests.get(dashboard_url).json()
+            rigs = data['rigs'].keys()
 
-        for rig in rigs:
-            rig_condition = data['rigs'][rig]['condition']
-            logging.debug("non error conditions: %s" % non_error_conditions)
-            logging.debug("error remediations: %s" % error_remediations)
-            logging.debug("default error remediation: %s" % error_default_remediation)
-            if rig_condition not in non_error_conditions:
-                fail_count[rig] += 1
-                logging.debug("fail count for %s is %s" % (rig, fail_count[rig]))
-                logging.debug("condition is: %s" % rig_condition)
-                logging.debug(data)
-                if fail_count[rig] >= max_fail_count:
-                    ip = (data['rigs'][rig]['ip'])
-                    logging.debug("rig ip: %s" % ip)
-                    if rig_condition in error_remediations:
-                        command = error_remediations.get(rig_condition)
-                    else:
-                        command = error_default_remediation
-                    os.system("ssh -i .ssh/id_rsa ethos@" + ip + " -oStrictHostKeyChecking=no " + command)
-                    logging.error("rig %s failed with condition: %s" % (rig, rig_condition))
-                    logging.error("executing %s on rig with ip %s" % (command, ip))
-                    logging.error(data)
-                    if pushover == 'enable':
-                        logging.error("sending pushover notification...")
-                        send_push("rig %s failed with condition: %s" % (rig, rig_condition))
+            for rig in rigs:
+                rig_condition = data['rigs'][rig]['condition']
+                logging.debug("non error conditions: %s" % non_error_conditions)
+                logging.debug("error remediations: %s" % error_remediations)
+                logging.debug("default error remediation: %s" % error_default_remediation)
+                if rig_condition not in non_error_conditions:
+                    fail_count[rig] += 1
+                    logging.debug("fail count for %s is %s" % (rig, fail_count[rig]))
+                    logging.debug("condition is: %s" % rig_condition)
+                    logging.debug(data)
+                    if fail_count[rig] >= max_fail_count:
+                        ip = (data['rigs'][rig]['ip'])
+                        logging.debug("rig ip: %s" % ip)
+                        if rig_condition in error_remediations:
+                            command = error_remediations.get(rig_condition)
+                        else:
+                            command = error_default_remediation
+                        os.system("ssh -i .ssh/id_rsa ethos@" + ip + " -oStrictHostKeyChecking=no " + command)
+                        logging.error("rig %s failed with condition: %s" % (rig, rig_condition))
+                        logging.error("executing %s on rig with ip %s" % (command, ip))
+                        logging.error(data)
+                        if pushover == 'enable':
+                            logging.error("sending pushover notification...")
+                            send_push("rig %s failed with condition: %s" % (rig, rig_condition))
+                        fail_count[rig] = 0
+                else:
+                    logging.debug("all is good with %s " % rig)
                     fail_count[rig] = 0
-            else:
-                logging.debug("all is good with %s " % rig)
-                fail_count[rig] = 0
-        time.sleep(freq)
+            time.sleep(freq)
+        else:
+            #ignore anything...
 
 
 if __name__ == '__main__':
