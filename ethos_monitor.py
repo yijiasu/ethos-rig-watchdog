@@ -98,6 +98,7 @@ def main():
                     fail_count[rig] = 0
             time.sleep(freq)
         except:
+            print("error")
             #ignore anything...
 
 
