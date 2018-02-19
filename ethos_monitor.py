@@ -97,7 +97,7 @@ def main():
                     logging.debug("all is good with %s " % rig)
                     fail_count[rig] = 0
             time.sleep(freq)
-        else:
+        except:
             #ignore anything...
 
 
