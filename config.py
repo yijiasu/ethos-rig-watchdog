@@ -1,4 +1,4 @@
-DASHBOARD_URL = 'http://pnmine.ethosdistro.com/?json=yes'
+DASHBOARD_URL = 'http://mlmine.ethosdistro.com/?json=yes'
 PUSHOVER = 'enable'
 APP_TOKEN = 'avh3toavqyuynpad9hc1mso1mdxbx4'
 USER_KEY = 'ud5jqgfv8k7xk6ysv9zqk3vkgd4cu7'
